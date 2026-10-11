@@ -216,3 +216,17 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Research data and generated experiment artifacts
+datasets/
+data/
+runs/
+results/
+checkpoints/
+*.pth
+*.pt
+*.ckpt
+*.xls
+*.xlsx
+.DS_Store
+

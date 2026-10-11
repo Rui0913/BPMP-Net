@@ -1,0 +1,7 @@
+# Optional: required only to import/execute the pristine historical scripts.
+-r requirements.txt
+torchvision
+scipy
+Pillow
+kornia
+xlwt

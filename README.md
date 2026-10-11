@@ -1,16 +1,59 @@
 # BPMP-Net
 
-Official implementation of **A Progressive Multiscale Network for Pansharpening with Bidirectional Pyramids**.
+**Bidirectional Progressive Multiscale Pyramid Fusion Network for Pansharpening**
 
-Rui Hao, Xin Jin, Shengfa Miao, Puming Wang, Hongyue Huang, Qian Jiang.
-Engineering Applications of Artificial Intelligence 182 (2026), 116059.
-[Paper DOI](https://doi.org/10.1016/j.engappai.2026.116059) · [中文说明](README.zh-CN.md)
+Code for **A progressive multiscale network for pansharpening with bidirectional pyramids**.
+
+**Authors:** Rui Hao, Xin Jin, Shengfa Miao, Puming Wang, Hongyue Huang, Qian Jiang.  
+**Journal:** Engineering Applications of Artificial Intelligence, Volume 182 (2026), Article 116059.  
+**DOI:** `10.1016/j.engappai.2026.116059`  
+**Paper:** [Read the paper via DOI](https://doi.org/10.1016/j.engappai.2026.116059)  
+**Documentation:** [中文 README](README.zh-CN.md) · [Implementation notes](docs/REFACTOR_NOTES.md)
 
 This release organizes the historical **prj3113/Net2.py + main3.py** experiment
 into a readable model package, shared loss function, configurable training and
 prediction entry points. The original files are preserved under `legacy/prj3113/`.
 It preserves the historical model and parameter keys; it does not claim newly
 verified reproduction of the published numerical results.
+
+## Overview and contributions
+
+Pansharpening combines a high-resolution panchromatic (PAN) image with a
+low-resolution multispectral (MS) image to reconstruct a high-resolution
+multispectral (HRMS) image. BPMP-Net aims to retain spectral information while
+recovering spatial edges and textures. The paper evaluates the method on
+Maryland, QuickBird and WorldView-2 datasets.
+
+The paper introduces four complementary designs:
+
+1. **Bidirectional progressive multiscale pyramid fusion.** PAN, MS and fusion
+   branches exchange features across modalities and the internal 128 × 128 and
+   256 × 256 scales. Bidirectional information flow combines coarse structural
+   context with fine spatial details instead of relying on one-way pyramid fusion.
+2. **MCAB — Multiscale Cross-Attention Block.** Cross-attention models PAN–MS
+   correlations, while serial–parallel multiscale convolutions combine wider
+   context and local detail to guide spatial–spectral fusion.
+3. **SKAFE — Shuffle Selective Kernel Attention Feature Extraction.** Self-attention
+   and selective kernel attention aggregate multiscale features. Feature shuffling
+   promotes information exchange, and progressive recovery preserves source-image
+   structure while refining coarse features and fine details.
+4. **SCWAB — Spatial-Channel Window Self-Attention Block.** Spatial and channel
+   attention are coupled with regular/shifted window attention and dense feature
+   connections. Local windows model contextual dependencies at a lower
+   computational cost than global self-attention, while channel recalibration
+   refines the spectral representation.
+
+| Paper component | Implementation |
+|---|---|
+| Bidirectional pyramid and three-branch fusion | [`BPMPNet`](bpmp/models/network.py) |
+| MCAB | [`MCAB`](bpmp/models/network.py) |
+| SKAFE | [`SKAFE`](bpmp/models/skafe.py) |
+| SCWAB | [`SCWAB`](bpmp/models/scwab.py) |
+| Regular/shifted window attention | [`window_attention.py`](bpmp/models/window_attention.py) |
+| Composite supervision | [`CompositeLoss`](bpmp/losses.py) |
+
+These descriptions summarize the paper's design. The selected historical code's
+output-scale and structural-loss conventions are documented below.
 
 ## Project layout
 
@@ -36,6 +79,16 @@ docs/                   provenance, changes, validation status
 ```
 
 ## Server environment
+
+Clone the repository and enter its root:
+
+```bash
+git clone https://github.com/Rui0913/BPMP-Net.git
+cd BPMP-Net
+```
+
+While the code/documentation PR is open, run `git checkout refactor/prj3113-readable`
+to use this release. After it is merged, the same files are available on `main`.
 
 Use Python 3.10 or newer. Install a PyTorch build appropriate for the server's
 CUDA/driver environment, then install the remaining dependencies:
@@ -104,7 +157,19 @@ can change a retrained model even with the historical sampling schedule. See
 
 ## Loss and the paper/code differences
 
-For each output, the selected historical code computes:
+Section 3.6 of the paper defines a composite objective at each supervised scale:
+
+```text
+L_s = 0.6 * L1(y_s, prediction_s)
+    + 0.3 * MSE(y_s, prediction_s)
+    + 0.1 * (1 - SSIM(y_s, prediction_s))
+L_total = sum(L_s for s in {128, 256})
+```
+
+L1 emphasizes pixel-level radiometric and spectral consistency, MSE penalizes
+large reconstruction errors, and SSIM encourages structural agreement.
+
+For each output, the selected historical code actually computes:
 
 ```text
 L = 0.6 * L1 + 0.3 * MSE + 0.1 * (1 - MS-SSIM)

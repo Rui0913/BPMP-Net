@@ -1,0 +1,16 @@
+{
+  "source": "prj3113",
+  "model": "Net2.py",
+  "training_entry": "main3.py",
+  "sha256": {
+    "Net2.py": "479109ad33d3df5b0bb9156e94c9ca6a9a158b4a19f6b22cf4ec52a7a2da2399",
+    "CAB.py": "5e93f57e3e3d61755d5a976aba557e792b9fdde3195c6b053e39dc83642fee8f",
+    "MSA.py": "c078427e912072a1ac94233337aa61e3ae6379d321d54d29e1207da8f7dbbf3e",
+    "SCExt.py": "2df6e1d69590769eeb7c83d9e0916bedb8049702d71f27945168296e90049ff3",
+    "base_net.py": "14e00c422b50221955d88701199f1ca343de929cd7e876ddd6fc65dfc1815b55",
+    "main3.py": "1386bfdb6cb19d6dfcfea0a2e32c32d6445e4ce59c22ffc42757c56fd9aef675",
+    "config.py": "11a00efe3f7c5678d7fe8b1b627bafbd8134a0145edd67557990674e4e1ad3d2",
+    "dataset.py": "7724a6bc4fb35f9f56c8075fd9e609644bfd82fef8b4dfe8db4579f96cc5b611",
+    "newmetrics-QB.py": "f12fc906d692ce33d758304719b90dbe468a94e0d499068a3f2adcce195248ee"
+  }
+}
